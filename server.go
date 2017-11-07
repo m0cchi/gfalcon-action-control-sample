@@ -49,6 +49,7 @@ func toSafeMessages(messages *list.List) []string {
 }
 
 func handle(w http.ResponseWriter, r *http.Request) {
+	args := map[string]interface{}{}
 
 	if r.Method == "POST" {
 		// push message
@@ -56,14 +57,15 @@ func handle(w http.ResponseWriter, r *http.Request) {
 			r.ParseForm()
 			message := r.Form.Get("message")
 			pushMessage(message)
+		} else {
+			args["systemMessage"] = "too long message"
 		}
 	}
 
 	// show message
 	safeMassages := toSafeMessages(messages)
-	args := map[string]interface{}{
-		"messages": safeMassages,
-	}
+	args["messages"] = safeMassages
+
 	if err := templates.ExecuteTemplate(w, "chat.html.tmpl", args); err != nil {
 		fmt.Fprintf(w, "error")
 	}
