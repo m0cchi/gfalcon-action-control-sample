@@ -10,3 +10,6 @@ sahohime resolve it.
 ```bash
 PORT=3000 go run server.go
 ```
+
+# License
+Licensed under the MIT License.
