@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>sahohime</title>
+  </head>
+  <body>
+    <div>
+      <h1>sahohime</h1>
+    </div>
+    <div id="system-message"></div>
+    <div id="input-form">
+      <form action="/" method="post">
+        <textarea name="message" placeholder="your message"></textarea>
+        <button>submit</button>
+      </form>
+    </div>
+    <div id="message-field">
+      {{range .messages}}
+      <div>{{.}}</div>
+      {{end}}
+    </div>
+  </body>
+</html>
