@@ -1,22 +1,17 @@
-# sahohime
-sahohime is base of sample application.
-Extend sahohime to create samples suitable for each production.
+# Action Control Sample
 
-# why need sahohime?
-It is bothersome to create a sample application when creating a library.
-sahohime resolve it.
+# require
+You should startup IdP on super domain.
 
-# how to use
-```bash
-$ git clone https://github.com/m0cchi/sahohime $GOPATH/src/github.com/$your_name/$your_repo_name
-$ cd $GOPATH/src/github.com/$your_name/$your_repo_name
-$ git remote remove origin
-# after: add new origin!
-```
+=> https://github.com/m0cchi/gfalcon-signin-service
 
 # run
 ```bash
-PORT=3000 go run server.go
+$ export DATASOURCE='gfadmin:gfadmin@unix(/tmp/mysql.sock)/gfalcon?parseTime=true'
+$ go run cmd/init.go
+$ go run cmd/init_user.go
+# => create user(TeamID: gfalcon, UserID: sahohime, Password: secret)
+$ IDP='https://saas.m0cchi.net' PORT=50000 go run server.go
 ```
 
 # License
