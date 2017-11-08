@@ -41,9 +41,7 @@ func toSlice(messages *list.List) []string {
 	return ret
 }
 
-func handle(w http.ResponseWriter, r *http.Request) {
-	args := map[string]interface{}{}
-
+func makeResponse(args map[string]interface{}, w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		// push message
 		if r.ContentLength < MaxContentLength {
@@ -51,7 +49,7 @@ func handle(w http.ResponseWriter, r *http.Request) {
 			message := r.Form.Get("message")
 			pushMessage(message)
 		} else {
-			args["systemMessage"] = "too long message"
+			args["systemMessage"] = args["systemMessage"].(string) + "\ntoo long message"
 		}
 	}
 
@@ -61,6 +59,13 @@ func handle(w http.ResponseWriter, r *http.Request) {
 	if err := templates.ExecuteTemplate(w, "chat.html.tmpl", args); err != nil {
 		fmt.Fprintf(w, "error")
 	}
+}
+
+func handle(w http.ResponseWriter, r *http.Request) {
+	args := map[string]interface{}{
+		"systemMessage": "",
+	}
+	makeResponse(args, w, r)
 }
 
 func main() {
