@@ -33,17 +33,10 @@ func pushMessage(message string) {
 	messagesLock.Unlock()
 }
 
-func toHTML(message interface{}) string {
-	str := message.(string)
-	return fmt.Sprintf(`
-%s
-`, str)
-}
-
-func toSafeMessages(messages *list.List) []string {
+func toSlice(messages *list.List) []string {
 	ret := make([]string, 0, messages.Len())
 	for e := messages.Back(); e != nil; e = e.Prev() {
-		ret = append(ret, toHTML(e.Value))
+		ret = append(ret, fmt.Sprintf("%v", e.Value))
 	}
 	return ret
 }
@@ -63,8 +56,7 @@ func handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// show message
-	safeMassages := toSafeMessages(messages)
-	args["messages"] = safeMassages
+	args["messages"] = toSlice(messages)
 
 	if err := templates.ExecuteTemplate(w, "chat.html.tmpl", args); err != nil {
 		fmt.Fprintf(w, "error")
