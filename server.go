@@ -50,15 +50,15 @@ func toSlice(messages *list.List) []string {
 	return ret
 }
 
-func makeResponse(args map[string]interface{}, w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
+func handle(args map[string]interface{}, w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" && args["postable"].(bool) {
 		// push message
 		if r.ContentLength < MaxContentLength {
 			r.ParseForm()
 			message := r.Form.Get("message")
 			pushMessage(message)
 		} else {
-			args["systemMessage"] = args["systemMessage"].(string) + "\ntoo long message"
+			args["systemMessage"] = "\ntoo long message"
 		}
 	}
 
@@ -91,18 +91,20 @@ func check(r *http.Request) error {
 	return nil
 }
 
-func handle(w http.ResponseWriter, r *http.Request) {
-	args := map[string]interface{}{
-		"systemMessage": "",
-		"IdP":           idp,
-	}
+func withCheck(handle func(map[string]interface{}, http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		args := map[string]interface{}{
+			"systemMessage": "",
+			"IdP":           idp,
+			"postable":      true,
+		}
 
-	if err := check(r); err != nil {
-		args["systemMessage"] = fmt.Sprintf("%v", err)
-		r.Method = "!POST" // failed
+		if err := check(r); err != nil {
+			args["systemMessage"] = fmt.Sprintf("%v", err)
+			args["postable"] = false
+		}
+		handle(args, w, r)
 	}
-
-	makeResponse(args, w, r)
 }
 
 func initGfalcon() error {
@@ -140,6 +142,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	http.HandleFunc("/", handle)
+	http.HandleFunc("/", withCheck(handle))
 	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 }
