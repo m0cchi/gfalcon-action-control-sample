@@ -20,7 +20,7 @@ const MaxSize = 10
 const PostActionID = "postable"
 
 var PostAction *model.Action
-
+var AuthError = errors.New("you must SignIn")
 var templates *template.Template
 var messages *list.List
 var messagesLock *sync.Mutex
@@ -71,14 +71,22 @@ func handle(args map[string]interface{}, w http.ResponseWriter, r *http.Request)
 }
 
 func check(r *http.Request) error {
-	cookie, err := r.Cookie("gfalcon.session")
+	sessionID, err := r.Cookie("gfalcon.session")
 	if err != nil {
-		return errors.New("you must SignIn")
+		return AuthError
 	}
-	value := cookie.Value
-	session, err := model.GetSession(db, value)
+	userIID, err := r.Cookie("gfalcon.iid")
+	if err != nil {
+		return AuthError
+	}
+	IID, err := strconv.ParseUint(userIID.Value, 10, 32)
+	if err != nil {
+		return AuthError
+	}
+
+	session, err := model.GetSession(db, uint32(IID), sessionID.Value)
 	if err = session.Validate(); err != nil {
-		return errors.New("you must SignIn")
+		return AuthError
 	}
 
 	if r.Method == "POST" {
