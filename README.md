@@ -7,7 +7,7 @@ You should startup IdP on super domain.
 
 # run
 ```bash
-$ export DATASOURCE='gfadmin:gfadmin@unix(/tmp/mysql.sock)/gfalcon?parseTime=true'
+$ export DATASOURCE='gfadmin:gfadmin@unix(/tmp/mysql.sock)/gfalcon?parseTime=true&loc=Asia%2FTokyo'
 $ go run cmd/init.go
 $ go run cmd/init_user.go
 # => create user(TeamID: gfalcon, UserID: sahohime, Password: secret)
